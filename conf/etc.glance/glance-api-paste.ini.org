@@ -1,0 +1,67 @@
+# use this pipeline for no auth or image caching - default
+[pipeline:glance-api]
+pipeline = versionnegotiation unauthenticated-context rootapp
+
+# use this pipeline for image caching and no auth
+[pipeline:glance-api-caching]
+pipeline = versionnegotiation unauthenticated-context cache rootapp
+
+# use this pipeline for caching w/ management interface but no auth
+[pipeline:glance-api-cachemanagement]
+pipeline = versionnegotiation unauthenticated-context cache cachemanage rootapp
+
+# use this pipeline for keystone auth
+[pipeline:glance-api-keystone]
+pipeline = versionnegotiation authtoken context rootapp
+
+# use this pipeline for keystone auth with image caching
+[pipeline:glance-api-keystone+caching]
+pipeline = versionnegotiation authtoken context cache rootapp
+
+# use this pipeline for keystone auth with caching and cache management
+[pipeline:glance-api-keystone+cachemanagement]
+pipeline = versionnegotiation authtoken context cache cachemanage rootapp
+
+[composite:rootapp]
+paste.composite_factory = glance.api:root_app_factory
+/: apiversions
+/v1: apiv1app
+/v2: apiv2app
+
+[app:apiversions]
+paste.app_factory = glance.api.versions:create_resource
+
+[app:apiv1app]
+paste.app_factory = glance.api.v1.router:api.factory
+
+[app:apiv2app]
+paste.app_factory = glance.api.v2.router:api.factory
+
+[filter:versionnegotiation]
+paste.filter_factory = glance.api.middleware.version_negotiation:versionnegotiationfilter.factory
+
+[filter:cache]
+paste.filter_factory = glance.api.middleware.cache:cachefilter.factory
+
+[filter:cachemanage]
+paste.filter_factory = glance.api.middleware.cache_manage:cachemanagefilter.factory
+
+[filter:context]
+paste.filter_factory = glance.api.middleware.context:contextmiddleware.factory
+
+[filter:unauthenticated-context]
+paste.filter_factory = glance.api.middleware.context:unauthenticatedcontextmiddleware.factory
+
+#[filter:authtoken]
+#paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+#delay_auth_decision = true
+
+[filter:authtoken]
+paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+delay_auth_decision = true
+auth_host = <keystone_ip>
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = <service_tenant_name>
+admin_user = glance
+admin_password = <service_password>

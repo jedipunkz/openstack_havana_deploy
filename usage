@@ -1,0 +1,6 @@
+usage) % sudo ./setup.sh <node_type>
+
+  <node_type>    : allinone|controller|network|compute
+
+example) % sudo ./setup.sh allinone
+

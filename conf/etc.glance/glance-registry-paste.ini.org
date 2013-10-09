@@ -1,0 +1,28 @@
+# use this pipeline for no auth - default
+[pipeline:glance-registry]
+pipeline = unauthenticated-context registryapp
+
+# use this pipeline for keystone auth
+[pipeline:glance-registry-keystone]
+pipeline = authtoken context registryapp
+
+[app:registryapp]
+paste.app_factory = glance.registry.api.v1:api.factory
+
+[filter:context]
+paste.filter_factory = glance.api.middleware.context:contextmiddleware.factory
+
+[filter:unauthenticated-context]
+paste.filter_factory = glance.api.middleware.context:unauthenticatedcontextmiddleware.factory
+
+#[filter:authtoken]
+#paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+
+[filter:authtoken]
+paste.filter_factory = keystone.middleware.auth_token:filter_factory
+auth_host = <keystone_ip>
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = <service_tenant_name>
+admin_user = glance
+admin_password = <service_password>

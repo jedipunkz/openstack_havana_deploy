@@ -1,0 +1,114 @@
+# configuration file for OpenStack Grizzly Installation Bash Script
+
+BASE_DIR=`pwd`
+
+# ---------------------------------------------------------------
+# choose 1. - 4.
+# 1. all in one node with neutron
+# 2. separated node mode with neutron
+# 3. all in one node with nova-network
+# 4. separated node mode with nova-network
+# ---------------------------------------------------------------
+#
+# ---------------------------------------------------------------
+# 1. if you run on one node (all in one), enable these paramters
+# ---------------------------------------------------------------
+#HOST_IP='10.200.10.10'
+#HOST_PUB_IP='10.200.9.10'
+#PUBLICNETWORK_NIC_NETWORK_NODE='eth0'
+# ---------------------------------------------------------------
+# 2. if you run on 3 separated nodes (controller, network, compute),
+#   enable these paramters
+# ---------------------------------------------------------------
+CONTROLLER_NODE_IP='10.200.10.10'
+CONTROLLER_NODE_PUB_IP='10.200.9.10'
+NETWORK_NODE_IP='10.200.10.11'
+COMPUTE_NODE_IP='10.200.10.12'
+DATANETWORK_NIC_NETWORK_NODE='eth1'
+DATANETWORK_NIC_COMPUTE_NODE='eth0'
+PUBLICNETWORK_NIC_NETWORK_NODE='eth0'
+# ---------------------------------------------------------------
+# 3. if you run on one node (all in one) with nova-network, enable these paramters
+# ---------------------------------------------------------------
+#HOST_IP='10.200.10.10'
+#HOST_PUB_IP='10.200.9.10'
+#FLAT_INTERFACE='eth0'
+# ---------------------------------------------------------------
+# 4. if you run on 2 or more  separated nodes (controller, compute)
+#   with nova-network, enable these paramters
+# ---------------------------------------------------------------
+#CONTROLLER_NODE_IP='10.200.10.10'
+#CONTROLLER_NODE_PUB_IP='10.200.9.10'
+#COMPUTE_NODE_IP='10.200.10.11'
+#FLAT_INTERFACE='eth0'
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+# network component type : 'neutron' or 'nova-network'
+# ---------------------------------------------------------------
+NETWORK_COMPONENT='neutron'
+
+# ---------------------------------------------------------------
+# misc paramters
+# ---------------------------------------------------------------
+# if you don't have disk for cinder, please input '/dev/loopN' for loopback device
+# if you want to use additional real disk, please input '/dev/sdX'.
+#CINDER_VOLUME='/dev/sdb'
+CINDER_VOLUME='/dev/loop3'
+
+# ---------------------------------------------------------------
+# user / password parameters
+# if you want to change username and password, please change these
+# parameters.
+# ---------------------------------------------------------------
+# Database user and password
+MYSQL_PASS='secret'
+DB_KEYSTONE_USER='keystoneUser'
+DB_KEYSTONE_PASS='keystonePass'
+DB_GLANCE_USER='glanceUser'
+DB_GLANCE_PASS='glancePass'
+DB_NEUTRON_USER='neutronUser'
+DB_NEUTRON_PASS='neutronPass'
+DB_NOVA_USER='novaUser'
+DB_NOVA_PASS='novaPass'
+DB_CINDER_USER='cinderUser'
+DB_CINDER_PASS='cinderPass'
+# Keystone username and password
+ADMIN_PASSWORD='admin'
+SERVICE_PASSWORD='service_pass'
+OS_TENANT_NAME='admin'
+OS_USERNAME='admin'
+OS_PASSWORD='admin'
+SERVICE_TOKEN='ADMIN'
+SERVICE_TENANT_NAME='service'
+DEMO_USER='demo'
+DEMO_PASSWORD='demo'
+
+# ---------------------------------------------------------------
+# quantun parameters
+# VM will be on this networks
+# int_net : internal network
+# ext_net : external network (floating ip range)
+# ---------------------------------------------------------------
+# NETWORK_TYPE must be 'vlan' or 'gre'
+NETWORK_TYPE='gre'
+INT_NET_GATEWAY='172.24.17.254'
+INT_NET_RANGE='172.24.17.0/24'
+EXT_NET_GATEWAY='10.200.9.1'
+EXT_NET_START='10.200.9.220'
+EXT_NET_END='10.200.9.229'
+EXT_NET_RANGE='10.200.9.0/24'
+
+# ---------------------------------------------------------------
+# nova-network parameters
+# ---------------------------------------------------------------
+FIXED_RANGE='10.0.0.0/24'
+FIXED_START_ADDR='10.0.0.2'
+FLOATING_RANGE='10.200.9.80/30'
+NETWORK_SIZE='256'
+
+# ---------------------------------------------------------------
+# OS image paramters
+# ---------------------------------------------------------------
+OS_IMAGE_URL="https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img"
+OS_IMAGE_NAME="Cirros 0.3.0 x86_64"

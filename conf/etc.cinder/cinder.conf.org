@@ -1,0 +1,10 @@
+[default]
+rootwrap_config=/etc/cinder/rootwrap.conf
+sql_connection = mysql://<db_cinder_user>:<db_cinder_pass>@<db_ip>/cinder
+api_paste_config = /etc/cinder/api-paste.ini
+iscsi_helper=ietadm
+volume_name_template = volume-%s
+volume_group = cinder-volumes
+verbose = true
+auth_strategy = keystone
+iscsi_ip_address=<cinder_ip>
