@@ -1,7 +1,10 @@
-OpenStack Grizzly Installation Script
+OpenStack Havana Installation Script
 ====
 
-OpenStack Grizzly Installation Bash Script for Ubuntu Server 12.04 LTS.
+this repository is under constructions.
+====
+
+OpenStack Havana Installation Bash Script for Ubuntu Server 12.04 LTS.
 
 Author
 ----
@@ -123,8 +126,8 @@ connectivity when you run this script. and make sure hostname resolv at
 
 git clone this script from github.
 
-    % git clone git://github.com/jedipunkz/openstack_grizzly_install.git
-    % cd openstack_grizzly_install
+    % git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+    % cd openstack_havana_deploy
     % cp setup.conf.samples/setup.conf.allinone.neutron setup.conf
     
 #### Edit parameters on setup.conf
@@ -195,8 +198,8 @@ Please setup network interfaces just like this.
 
 git clone this script from github.
 
-    % git clone git://github.com/jedipunkz/openstack_grizzly_install.git
-    % cd openstack_grizzly_install
+    % git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+    % cd openstack_havana_deploy
     % cp setup.conf.samples/setup.conf.allinone.nova-network setup.conf
 
 #### Edit parameters on setup.conf
@@ -250,8 +253,8 @@ How to use on separated nodes mode with quatum
 
 git clone this script from github on controller node.
 
-    controller% git clone git://github.com/jedipunkz/openstack_grizzly_install.git
-    controller% cd openstack_grizzly_install
+    controller% git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+    controller% cd openstack_havana_deploy
     controller% cp setup.conf.samples/setup.conf.separated.neutron setup.conf
     
 #### Edit parameters on setup.conf
@@ -275,8 +278,8 @@ please change these.
 
 copy directory to network node and compute node.
 
-    controller% scp -r openstack_grizzly_install <network_node_ip>:~/
-    controller% scp -r openstack_grizzly_install <compute_node_ip>:~/
+    controller% scp -r openstack_havana_deploy <network_node_ip>:~/
+    controller% scp -r openstack_havana_deploy <compute_node_ip>:~/
 
 #### Controller Node's network interfaces
 
@@ -392,8 +395,8 @@ interfaces as noted before for compute node and execute these commands.
 
 Edit setup.conf (COPUTE_NODE_IP parameter) and execute setup.sh.
 
-    compute    % scp -r ~/openstack_grizzly_install <add_compute_node>:~/
-    add_compute% cd openstack_grizzly_install
+    compute    % scp -r ~/openstack_havana_deploy <add_compute_node>:~/
+    add_compute% cd openstack_havana_deploy
     add_compute% ${EDITOR} setup.conf
     COMPUTE_NODE_IP='<your additional compute node's ip>'
     add_compute% sudo ./setup.sh compute
@@ -406,8 +409,8 @@ interfaces as noted before for network node and execute these commands.
 
 Edit setup.conf (NETWORK_NODE_IP parameter) and execute setup.sh.
 
-    network    % scp -r ~/openstack_grizzly_install <add_network_node>:~/
-    add_network% cd openstack_grizzly_install
+    network    % scp -r ~/openstack_havana_deploy <add_network_node>:~/
+    add_network% cd openstack_havana_deploy
     add_network% ${EDITOR} setup.conf
     NETWORK_NODE_IP='<your additional network node's ip>'
     add_network% sudo ./setup.sh network
@@ -438,8 +441,8 @@ How to use on separated nodes mode with nova-network
 
 git clone this script from github on controller node.
 
-    controller% git clone git://github.com/jedipunkz/openstack_grizzly_install.git
-    controller% cd openstack_grizzly_install
+    controller% git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+    controller% cd openstack_havana_deploy
     controller% cp setup.conf.samples/setup.conf.separated.nova-network setup.conf
 
 #### Edit parameters on setup.conf
@@ -460,8 +463,8 @@ please change these.
 
 copy directory to network node and compute node.
 
-    controller% scp -r openstack_grizzly_install <network_node_ip>:~/
-    controller% scp -r openstack_grizzly_install <compute_node_ip>:~/
+    controller% scp -r openstack_havana_deploy <network_node_ip>:~/
+    controller% scp -r openstack_havana_deploy <compute_node_ip>:~/
 
 #### Controller Node's network interfaces
 
@@ -535,8 +538,8 @@ interfaces as noted before for compute node and execute these commands.
 
 Edit setup.conf (COPUTE_NODE_IP parameter) and execute setup.sh.
 
-    compute    % scp -r ~/openstack_grizzly_install <add_compute_node>:~/
-    add_compute% cd openstack_grizzly_install
+    compute    % scp -r ~/openstack_havana_deploy <add_compute_node>:~/
+    add_compute% cd openstack_havana_deploy
     add_compute% ${EDITOR} setup.conf
     COMPUTE_NODE_IP='<your additional compute node's ip>'
     add_compute% sudo ./setup.sh compute
@@ -597,17 +600,7 @@ To view a copy of this license, visit
 Credits
 ----
 
-This work has been based on: mseknibilel's guide.
-
-<https://github.com/mseknibilel/OpenStack-Grizzly-Install-Guide>
 
 Version and Change log
 ----
-
-* 2013/06/19 : version 0.6 : supported nova-network
-* 2013/05/27 : version 0.5 : supported vlan mode
-* 2013/05/24 : version 0.4 : enabled to use loopback device for cinder.
-* 2013/05/13 : version 0.3 : enabled nova live-migration
-* 2013/04/18 : version 0.2 : enabled LBaaS, fixed a problem to access metadata server from vm.
-* 2013/04/17 : version 0.1 : First release.
 
