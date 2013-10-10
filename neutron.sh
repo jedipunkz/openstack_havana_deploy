@@ -134,6 +134,7 @@ function network_neutron_setup() {
     "<controller_node_ip>:${controller_node_ip}"
   
   cp $base_dir/conf/etc.neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini
+  cp $base_dir/conf/etc.neutron/lbaas_agent.ini /etc/neutron/lbaas_agent.ini
 
   if [[ "${network_type}" = 'gre' ]]; then
     # setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
