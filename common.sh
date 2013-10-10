@@ -441,11 +441,13 @@ function compute_nova_setup() {
   if [[ "${network_type}" = 'gre' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}" "<neutron_ip>:${compute_node_ip}"
+      "<db_ip>:${db_ip}" "<neutron_ip>:${compute_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}"
+      "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
   else
     echo "network_type must be 'vlan' or 'gre'."
     exit 1
@@ -453,7 +455,11 @@ function compute_nova_setup() {
     
   setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
     outfile:/etc/neutron/neutron.conf \
-    "<controller_ip>:${controller_node_ip}"
+    "<controller_node_ip>:${controller_node_ip}" \
+    "<service_tenant_name>:${service_tenant_name}" \
+    "<service_password>:${service_password}" \
+    "<db_neutron_user>:${db_neutron_user}" \
+    "<db_neutron_pass>:${db_neutron_pass}"
 
   # restart ovs agent
   service neutron-plugin-openvswitch-agent restart

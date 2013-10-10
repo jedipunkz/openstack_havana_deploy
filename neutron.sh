@@ -16,7 +16,7 @@ function allinone_neutron_setup() {
   # set configuration files
   setconf infile:$base_dir/conf/etc.neutron/metadata_agent.ini \
     outfile:/etc/neutron/metadata_agent.ini \
-    "<controller_ip>:127.0.0.1" "<keystone_ip>:${keystone_ip}" \
+    "<controller_node_ip>:127.0.0.1" "<keystone_ip>:${keystone_ip}" \
     "<service_tenant_name>:${service_tenant_name}" \
     "<service_password>:${service_password}"
   setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
@@ -32,6 +32,11 @@ function allinone_neutron_setup() {
     "<service_password>:${service_password}"
 
   cp $base_dir/conf/etc.neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini
+
+  setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
+    outfile:/etc/neutron/neutron.conf \
+    "<controller_node_ip>:${controller_node_ip}" "<db_neutron_user>:${db_neutron_user}" \
+    "<db_neutron_pass>:${db_neutron_pass}"
 
   if [[ "${network_type}" = 'gre' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
@@ -63,12 +68,18 @@ function controller_neutron_setup() {
   # create database for neutron
   mysql -u root -p${mysql_pass} -e "create database neutron;"
   mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
+  mysql -u root -p${mysql_pass} -e "create database ovs_neutron;"
+  mysql -u root -p${mysql_pass} -e "grant all on ovs_neutron.* to '${db_ovs_user}'@'%' identified by '${db_ovs_pass}';"
 
   # set configuration files
   if [[ "${network_type}" = 'gre' ]]; then
-    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre.controller \
+    # setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre.controller \
+    #   outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+    #   "<db_ip>:${db_ip}"
+    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}"
+      "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
@@ -77,7 +88,7 @@ function controller_neutron_setup() {
     echo "network_type must be 'vlan' or 'gre'."
     exit 1
   fi
-  
+ 
   setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
     outfile:/etc/neutron/api-paste.ini \
     "<keystone_ip>:${keystone_ip}" \
@@ -85,7 +96,8 @@ function controller_neutron_setup() {
     "<service_password>:${service_password}"
   setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
     outfile:/etc/neutron/neutron.conf \
-    "<controller_ip>:localhost"
+    "<controller_node_ip>:${controller_node_ip}" "<db_neutron_user>:${db_neutron_user}" \
+    "<db_neutron_pass>:${db_neutron_pass}"
 
   # restart process
   restart_service neutron-server
@@ -102,7 +114,7 @@ function network_neutron_setup() {
   # set configuration files
   setconf infile:$base_dir/conf/etc.neutron/metadata_agent.ini \
     outfile:/etc/neutron/metadata_agent.ini \
-    "<controller_ip>:${controller_node_ip}" \
+    "<controller_node_ip>:${controller_node_ip}" \
     "<keystone_ip>:${keystone_ip}" \
     "<service_tenant_name>:${service_tenant_name}" \
     "<service_password>:${service_password}#"
@@ -119,14 +131,18 @@ function network_neutron_setup() {
     "<service_password>:${service_password}"
   setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
     outfile:/etc/neutron/neutron.conf \
-    "<controller_ip>:${controller_node_ip}"
+    "<controller_node_ip>:${controller_node_ip}"
   
   cp $base_dir/conf/etc.neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini
 
   if [[ "${network_type}" = 'gre' ]]; then
+    # setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
+    #   outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+    #   "<db_ip>:${db_ip}" "<neutron_ip>:${network_node_ip}"
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}" "<neutron_ip>:${network_node_ip}"
+      "<db_ip>:${db_ip}" "<neutron_ip>:${network_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
@@ -141,6 +157,16 @@ function network_neutron_setup() {
   # when you noticed that it is not needed, please comment out these 2 lines.
   #cp $base_dir/conf/etc.sudoers.d/neutron_sudoers /etc/sudoers.d/neutron_sudoers
   #chmod 440 /etc/sudoers.d/neutron_sudoers
+
+  setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
+    outfile:/etc/neutron/api-paste.ini \
+    "<keystone_ip>:${keystone_ip}" \
+    "<service_tenant_name>:${service_tenant_name}" \
+    "<service_password>:${service_password}"
+  setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
+    outfile:/etc/neutron/neutron.conf \
+    "<controller_node_ip>:${controller_node_ip}" "<db_neutron_user>:${db_neutron_user}" \
+    "<db_neutron_pass>:${db_neutron_pass}"
 
   # restart processes
   cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i restart; done
