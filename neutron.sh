@@ -263,3 +263,32 @@ function compute_openvswitch_setup() {
   ovs-vsctl add-br br-eth1
   ovs-vsctl add-port br-eth1 ${datanetwork_nic_compute_node}
 }
+
+function scgroup_allow() {
+  # switch to 'demo' user
+  # we will use 'demo' user to access each api and instances, so it switch to 'demo'
+  # user for security group setup.
+  export SERVICE_TOKEN=${service_token}
+  export OS_TENANT_NAME=service
+  export OS_USERNAME=${demo_user}
+  export OS_PASSWORD=${demo_password}
+  export OS_AUTH_URL="http://${keystone_ip}:5000/v2.0/"
+  export SERVICE_ENDPOINT="http://${keystone_ip}:35357/v2.0"
+
+  # add ssh, icmp allow rules which named 'default'
+  #nova --no-cache secgroup-add-rule default tcp 22 22 0.0.0.0/0
+  #nova --no-cache secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+  neutron security-group-rule-create --protocol icmp --direction ingress default
+  neutron security-group-rule-create --protocol tcp --port-range-min 22 --port-range-max 22 --direction ingress default
+  neutron security-group-rule-list
+
+  # switch to 'admin' user
+  # this script need 'admin' user, so turn back to admin.
+  export SERVICE_TOKEN=${service_token}
+  export OS_TENANT_NAME=${os_tenant_name}
+  export OS_USERNAME=${os_username}
+  export OS_PASSWORD=${os_password}
+  export OS_AUTH_URL="http://${keystone_ip}:5000/v2.0/"
+  export SERVICE_ENDPOINT="http://${keystone_ip}:35357/v2.0"
+}
+

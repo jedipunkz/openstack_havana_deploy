@@ -14,9 +14,13 @@ set -ex
 # include functions
 # --------------------------------------------------------------------------------------
 source ./functions
-source ./common.sh
-#source ./nova-network.sh
+source ./init.sh
+source ./keystone.sh
+source ./glance.sh
+source ./nova.sh
 source ./neutron.sh
+source ./cinder.sh
+source ./horizon.sh
 
 # --------------------------------------------------------------------------------------
 # include paramters of conf file.
@@ -93,7 +97,7 @@ case "$1" in
       exit 1
     fi
 
-    printf '\033[0;32m%s\033[0m\n' 'this script was completed. :d'
+    printf '\033[0;32m%s\033[0m\n' 'this script was completed. :D'
     printf '\033[0;34m%s\033[0m\n' 'you have done! enjoy it. :)))))'
     ;;
   controller)
@@ -134,7 +138,7 @@ case "$1" in
       exit 1
     fi
     
-    printf '\033[0;32m%s\033[0m\n' 'setup for controller node has done. :d.'
+    printf '\033[0;32m%s\033[0m\n' 'setup for controller node has done. :D.'
     printf '\033[0;34m%s\033[0m\n' 'next, login to network node and exec "sudo ./setup.sh network".'
     ;;
   network)
@@ -153,7 +157,7 @@ case "$1" in
     #create_network
     #scgroup_allow controller
 
-    printf '\033[0;32m%s\033[0m\n' 'setup for network node has done. :d'
+    printf '\033[0;32m%s\033[0m\n' 'setup for network node has done. :D'
     printf '\033[0;34m%s\033[0m\n' 'next, login to compute node and exec "sudo ./setup.sh compute".'
     ;;
   compute)
@@ -179,7 +183,7 @@ case "$1" in
       exit 1
     fi
     
-    printf '\033[0;32m%s\033[0m\n' 'setup for compute node has done. :d'
+    printf '\033[0;32m%s\033[0m\n' 'setup for compute node has done. :D'
     printf '\033[0;34m%s\033[0m\n' 'you have done! enjoy it. :)))))'
     ;;
   create_network)
