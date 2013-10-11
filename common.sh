@@ -424,45 +424,45 @@ function compute_nova_setup() {
   # openvswitch
   #
   # install openvswitch and add bridge interfaces
-  install_package openvswitch-switch
+  #install_package openvswitch-switch
 
   # adding bridge and port
-  ovs-vsctl add-br br-int
-  ovs-vsctl add-br br-eth1
-  ovs-vsctl add-port br-eth1 ${datanetwork_nic_compute_node}
+  #ovs-vsctl add-br br-int
+  #ovs-vsctl add-br br-eth1
+  #ovs-vsctl add-port br-eth1 ${datanetwork_nic_compute_node}
 
   #
   # neutron
   #
   # install openvswitch neutron plugin
-  install_package neutron-plugin-openvswitch-agent neutron-lbaas-agent
+  # install_package neutron-plugin-openvswitch-agent neutron-lbaas-agent
 
-  # set configuration files
-  if [[ "${network_type}" = 'gre' ]]; then
-    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
-      outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}" "<neutron_ip>:${compute_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
-      "<db_ovs_pass>:${db_ovs_pass}"
-  elif [[ "${network_type}" = 'vlan' ]]; then
-    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
-      outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \
-      "<db_ovs_pass>:${db_ovs_pass}"
-  else
-    echo "network_type must be 'vlan' or 'gre'."
-    exit 1
-  fi
-    
-  setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
-    outfile:/etc/neutron/neutron.conf \
-    "<controller_node_ip>:${controller_node_ip}" \
-    "<service_tenant_name>:${service_tenant_name}" \
-    "<service_password>:${service_password}" \
-    "<db_neutron_user>:${db_neutron_user}" \
-    "<db_neutron_pass>:${db_neutron_pass}"
+  # # set configuration files
+  # if [[ "${network_type}" = 'gre' ]]; then
+  #   setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
+  #     outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+  #     "<db_ip>:${db_ip}" "<neutron_ip>:${compute_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
+  #     "<db_ovs_pass>:${db_ovs_pass}"
+  # elif [[ "${network_type}" = 'vlan' ]]; then
+  #   setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
+  #     outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+  #     "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \
+  #     "<db_ovs_pass>:${db_ovs_pass}"
+  # else
+  #   echo "network_type must be 'vlan' or 'gre'."
+  #   exit 1
+  # fi
+  #   
+  # setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
+  #   outfile:/etc/neutron/neutron.conf \
+  #   "<controller_node_ip>:${controller_node_ip}" \
+  #   "<service_tenant_name>:${service_tenant_name}" \
+  #   "<service_password>:${service_password}" \
+  #   "<db_neutron_user>:${db_neutron_user}" \
+  #   "<db_neutron_pass>:${db_neutron_pass}"
 
-  # restart ovs agent
-  service neutron-plugin-openvswitch-agent restart
+  # # restart ovs agent
+  # service neutron-plugin-openvswitch-agent restart
 
   #
   # nova
@@ -627,8 +627,6 @@ function horizon_setup() {
 # --------------------------------------------------------------------------------------
 #  make seciruty group rule named 'default' to allow ssh and icmp traffic
 # --------------------------------------------------------------------------------------
-# this function enable to access to the instances via ssh and icmp.
-# if you want to add more rules named default, you can add it.
 function scgroup_allow() {
   # switch to 'demo' user
   # we will use 'demo' user to access each api and instances, so it switch to 'demo'
@@ -645,6 +643,7 @@ function scgroup_allow() {
   #nova --no-cache secgroup-add-rule default icmp -1 -1 0.0.0.0/0
   neutron security-group-rule-create --protocol icmp --direction ingress default
   neutron security-group-rule-create --protocol tcp --port-range-min 22 --port-range-max 22 --direction ingress default
+  neutron security-group-rule-list
 
   # switch to 'admin' user
   # this script need 'admin' user, so turn back to admin.
@@ -659,14 +658,14 @@ function scgroup_allow() {
 # --------------------------------------------------------------------------------------
 # install openvswitch
 # --------------------------------------------------------------------------------------
-function openvswitch_setup() {
-  install_package openvswitch-switch openvswitch-datapath-dkms
-  # create bridge interfaces
-  ovs-vsctl add-br br-int
-  ovs-vsctl add-br br-eth1
-  if [[ "$1" = "network" ]]; then
-    ovs-vsctl add-port br-eth1 ${datanetwork_nic_network_node}
-  fi
-  ovs-vsctl add-br br-ex
-  ovs-vsctl add-port br-ex ${publicnetwork_nic_network_node}
-}
+# function openvswitch_setup() {
+#   install_package openvswitch-switch openvswitch-datapath-dkms
+#   # create bridge interfaces
+#   ovs-vsctl add-br br-int
+#   ovs-vsctl add-br br-eth1
+#   if [[ "$1" = "network" ]]; then
+#     ovs-vsctl add-port br-eth1 ${datanetwork_nic_network_node}
+#   fi
+#   ovs-vsctl add-br br-ex
+#   ovs-vsctl add-port br-ex ${publicnetwork_nic_network_node}
+# }

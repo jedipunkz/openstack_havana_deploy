@@ -173,6 +173,37 @@ function network_neutron_setup() {
   cd /etc/init.d/; for i in $( ls neutron-* ); do sudo service $i restart; done
 }
 
+function compute_neutron_setup() {
+  install_package neutron-plugin-openvswitch-agent neutron-lbaas-agent
+
+  # set configuration files
+  if [[ "${network_type}" = 'gre' ]]; then
+    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
+      outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+      "<db_ip>:${db_ip}" "<neutron_ip>:${compute_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
+  elif [[ "${network_type}" = 'vlan' ]]; then
+    setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
+      outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
+      "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \
+      "<db_ovs_pass>:${db_ovs_pass}"
+  else
+    echo "network_type must be 'vlan' or 'gre'."
+    exit 1
+  fi
+
+  setconf infile:$base_dir/conf/etc.neutron/neutron.conf \
+    outfile:/etc/neutron/neutron.conf \
+    "<controller_node_ip>:${controller_node_ip}" \
+    "<service_tenant_name>:${service_tenant_name}" \
+    "<service_password>:${service_password}" \
+    "<db_neutron_user>:${db_neutron_user}" \
+    "<db_neutron_pass>:${db_neutron_pass}"
+
+  # restart ovs agent
+  service neutron-plugin-openvswitch-agent restart
+}
+
 # --------------------------------------------------------------------------------------
 # create network via neutron
 # --------------------------------------------------------------------------------------
@@ -210,3 +241,25 @@ function create_network() {
   fi
 }
 
+# --------------------------------------------------------------------------------------
+# install openvswitch
+# --------------------------------------------------------------------------------------
+function openvswitch_setup() {
+  install_package openvswitch-switch openvswitch-datapath-dkms
+  # create bridge interfaces
+  ovs-vsctl add-br br-int
+  ovs-vsctl add-br br-eth1
+  if [[ "$1" = "network" ]]; then
+    ovs-vsctl add-port br-eth1 ${datanetwork_nic_network_node}
+  fi
+  ovs-vsctl add-br br-ex
+  ovs-vsctl add-port br-ex ${publicnetwork_nic_network_node}
+}
+
+function compute_openvswitch_setup() {
+  install_package openvswitch-switch
+
+  ovs-vsctl add-br br-int
+  ovs-vsctl add-br br-eth1
+  ovs-vsctl add-port br-eth1 ${datanetwork_nic_compute_node}
+}

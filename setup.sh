@@ -167,6 +167,8 @@ case "$1" in
     if [[ "$network_component" = "neutron" ]]; then
       shell_env separate
       init
+      compute_openvswitch_setup
+      compute_neutron_setup
       compute_nova_setup
     elif [[ "$network_component" = "nova-network" ]]; then
       shell_env separate
