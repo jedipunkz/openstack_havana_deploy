@@ -8,8 +8,8 @@ function allinone_neutron_setup() {
   install_package neutron-server neutron-plugin-openvswitch neutron-plugin-openvswitch-agent dnsmasq neutron-dhcp-agent neutron-l3-agent neutron-lbaas-agent
 
   # create database for neutron
-  mysql -u root -p${mysql_pass} -e "create database neutron;"
-  mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
+  # mysql -u root -p${mysql_pass} -e "create database neutron;"
+  # mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
   mysql -u root -p${mysql_pass} -e "create database ovs_neutron;"
   mysql -u root -p${mysql_pass} -e "grant all on ovs_neutron.* to '${db_ovs_user}'@'%' identified by '${db_ovs_pass}';"
 
@@ -66,8 +66,8 @@ function controller_neutron_setup() {
   # install packages
   install_package neutron-server neutron-plugin-openvswitch
   # create database for neutron
-  mysql -u root -p${mysql_pass} -e "create database neutron;"
-  mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
+  # mysql -u root -p${mysql_pass} -e "create database neutron;"
+  # mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
   mysql -u root -p${mysql_pass} -e "create database ovs_neutron;"
   mysql -u root -p${mysql_pass} -e "grant all on ovs_neutron.* to '${db_ovs_user}'@'%' identified by '${db_ovs_pass}';"
 

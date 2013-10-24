@@ -157,6 +157,7 @@ firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewal
 [database]
 #connection = mysql://ovs:ovs@10.200.10.105:3306/ovs_neutron
 connection = mysql://<db_ovs_user>:<db_ovs_pass>@<db_ip>:3306/ovs_neutron
+#connection = mysql://<db_neutron_user>:<db_neutron_pass>@<db_ip>:3306/neutron
 #[OVS]
 #tenant_network_type = gre
 #enable_tunneling = True

@@ -20,6 +20,7 @@ source ./glance.sh
 source ./nova.sh
 source ./neutron.sh
 source ./cinder.sh
+source ./heat.sh
 source ./horizon.sh
 
 # --------------------------------------------------------------------------------------
@@ -78,6 +79,7 @@ case "$1" in
       allinone_nova_setup
       cinder_setup allinone
       horizon_setup
+      heat_setup
       create_network
       scgroup_allow allinone
     elif [[ "$network_component" = "nova-network" ]]; then
@@ -90,6 +92,7 @@ case "$1" in
       allinone_nova_setup_nova_network
       cinder_setup allinone
       horizon_setup
+      heat_setup
       create_network_nova_network
       scgroup_allow allinone
     else
@@ -119,6 +122,7 @@ case "$1" in
       controller_nova_setup
       cinder_setup controller
       horizon_setup
+      heat_setup
       # scgroup_allow controller
     elif [[ "$network_component" = "nova-network" ]]; then
       shell_env separate
@@ -131,6 +135,7 @@ case "$1" in
       controller_nova_setup_nova_network
       cinder_setup controller
       horizon_setup
+      heat_setup
       create_network_nova_network
       # scgroup_allow controller
     else
