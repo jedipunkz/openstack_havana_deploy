@@ -1,7 +1,7 @@
 OpenStack Havana Installation Script
 ====
 
-this repository is under constructions.
+this repository is under constructions. especially for nova-network!
 ====
 
 OpenStack Havana Installation Bash Script for Ubuntu Server 12.04 LTS.
@@ -21,9 +21,11 @@ This script was tested ..
 
 * all in one node with neutron
 * separated nodes (controller node, network node, compute x n) with neutron
+
+in these cases, it is not already done.
+
 * all in one node with nova-network
 * separated nodes (controller node, compute x n) with nova-network
-* GRE Tunnel, VLAN
 
 so, now I do not support separated nodes for each service (keystone, glance,
 nova, etc...). If you want to do this with separated nodes mode, please tell
@@ -110,9 +112,14 @@ Please setup network interfaces just like this.
         dns-nameservers 8.8.8.8 8.8.4.4
         dns-search example.com
 
-    # this NIC must be on management network
     auto eth1
     iface eth1 inet static
+        address 172.16.0.10
+        netmask 255.255.255.0
+
+    # this NIC must be on management network
+    auto eth2
+    iface eth2 inet static
         address 10.200.10.10
         netmask 255.255.255.0
         gateway 10.200.10.1
@@ -151,80 +158,6 @@ Run this script, all of conpornents will be built.
 
 That's all and You've done. :D Now you can access to Horizon
 (http://${HOST_IP}/horizon/) with user 'demo', password 'demo'.
-
-How to use on All in One Node with nova-network
-----
-
-#### Architecture
-
-    +------------------- Public Network
-    |
-    +------------+
-    |vm|vm|...   |
-    +------------+
-    | all in one |
-    +------------+
-    |    
-    +------------------- Management/API Network
-
-
-* all of compornetns are on same node.
-
-#### Setup network interfaces
-
-Please setup network interfaces just like this.
-
-    % sudo ${EDITOR} /etc/network/interfaces
-    auto lo
-    iface lo inet loopback
-    
-    # this NIC will be used for VM traffic to the internet
-    auto eth0
-    iface eth0 inet static
-        address 10.200.9.10
-        netmask 255.255.255.0
-        gateway 10.200.9.1
-        dns-nameservers 8.8.8.8 8.8.4.4
-        dns-search example.com
-
-    # this NIC must be on management network
-    auto eth1
-    iface eth1 inet static
-        address 10.200.10.10
-        netmask 255.255.255.0
-        dns-nameservers 8.8.8.8 8.8.4.4
-
-#### Get this script
-
-git clone this script from github.
-
-    % git clone git://github.com/jedipunkz/openstack_havana_deploy.git
-    % cd openstack_havana_deploy
-    % cp setup.conf.samples/setup.conf.allinone.nova-network setup.conf
-
-#### Edit parameters on setup.conf
-
-There are many paramaters on setup.conf, but in 'allinone' mode, parameters
-which you need to edit is such things.
-
-    HOST_IP='10.200.10.10'
-    HOST_PUB_IP='10.200.9.10'
-    FLAT_INTERFACE='eth0'
-    NETWORK_COMPONENT='nova-network'
-
-If you want to change other parameters such as DB password, admin password,
-please change these.
-
-#### Run script
-
-Run this script, all of conpornents will be built.
-
-    % sudo ./setup.sh allinone
-
-That's all and You've done. :D Now you can access to Horizon
-(http://${HOST_IP}/horizon/) with user 'demo', password 'demo'.
-
-
 
 How to use on separated nodes mode with quatum
 ----
@@ -417,134 +350,6 @@ Edit setup.conf (NETWORK_NODE_IP parameter) and execute setup.sh.
     add_network% source ~/openstackrc
     add_network% neutron agent-list # check agent list
     
-How to use on separated nodes mode with nova-network
-----
-
-#### Architecture
-
-    +-------------+-------------+------------------------------ Public/API Network
-    |             |             |             
-    +-----------+ +-----------+ +-----------+
-    |           | |vm|vm|..   | |vm|vm|..   |
-    | controller| +-----------+ +-----------+
-    |           | |  compute  | |  compute  |
-    |           | |           | | additional|
-    +-----------+ +-----------+ +-----------+
-    |             |             |
-    +-------------+-------------+------------------------------ Management Network
-
-
-* minimum architecture : 2 nodes (controller node x 1, compute node x1)
-* additional compute node(s) make you be able to have more VMs.
-
-#### Get this script
-
-git clone this script from github on controller node.
-
-    controller% git clone git://github.com/jedipunkz/openstack_havana_deploy.git
-    controller% cd openstack_havana_deploy
-    controller% cp setup.conf.samples/setup.conf.separated.nova-network setup.conf
-
-#### Edit parameters on setup.conf
-
-There are many paramaters on setup.conf, but in 'allinone' mode, parameters
-which you need to edit is such things.
-
-    CONTROLLER_NODE_IP='10.200.10.10'
-    CONTROLLER_NODE_PUB_IP='10.200.9.10'
-    COMPUTE_NODE_IP='10.200.10.11'
-    FLAT_INTERFACE='eth0'
-    NETWORK_COMPONENT='nova-network'
-
-If you want to change other parameters such as DB password, admin password,
-please change these.
-
-#### copy to other nodes
-
-copy directory to network node and compute node.
-
-    controller% scp -r openstack_havana_deploy <network_node_ip>:~/
-    controller% scp -r openstack_havana_deploy <compute_node_ip>:~/
-
-#### Controller Node's network interfaces
-
-Set up NICs for controller node.
-
-    controller% sudo ${EDITOR} /etc/network/interfaces
-    # The loopback network interface
-    auto lo
-    iface lo inet loopback
-    
-    # for API network
-    auto eth0
-    iface eth0 inet static
-        address 10.200.9.10
-        netmask 255.255.255.0
-        gateway 10.200.9.1
-        dns-nameservers 8.8.8.8 8.8.4.4
-        dns-search example.com
-
-    # for management network
-    auto eth1
-    iface eth1 inet static
-        address 10.200.10.10
-        netmask 255.255.255.0
-        dns-nameservers 8.8.8.8 8.8.4.4
-        dns-search example.com
-
-#### Compute Node's network interfaces
-
-Set up NICs for network node.
-
-    compute% sudo ${EDITOR} /etc/network/interfaces
-    # The loopback network interface
-    auto lo
-    iface lo inet loopback
-    
-    # for API network
-    auto eth0
-    iface eth0 inet static
-        address 10.200.9.11
-        netmask 255.255.255.0
-        gateway 10.200.9.1
-        dns-nameservers 8.8.8.8 8.8.4.4
-        dns-search example.com
-
-    # for management network
-    auto eth1
-    iface eth1 inet static
-        address 10.200.10.11
-        netmask 255.255.255.0
-        dns-nameservers 8.8.8.8 8.8.4.4
-        dns-search example.com
-        
-and login to compute node via eth2 (mangement network) for executing this
-script. Other NIC will lost connectivity.
-
-#### Run script
-
-Run this script, all of conpornents will be built.
-
-    controller% sudo ./setup.sh controller
-    compute   % sudo ./setup.sh comupte
-
-That's all and You've done. :D Now you can access to Horizon
-(http://${CONTROLLER_NODE_PUB_IP}/horizon/) with user 'demo', password 'demo'.
-
-#### Additional Compute Node
-
-If you want to have additional compute node(s), please setup network
-interfaces as noted before for compute node and execute these commands.
-
-Edit setup.conf (COPUTE_NODE_IP parameter) and execute setup.sh.
-
-    compute    % scp -r ~/openstack_havana_deploy <add_compute_node>:~/
-    add_compute% cd openstack_havana_deploy
-    add_compute% ${EDITOR} setup.conf
-    COMPUTE_NODE_IP='<your additional compute node's ip>'
-    add_compute% sudo ./setup.sh compute
-    add_compute% sudo nova-manage service list # check nodes list
-
 
 Parameters
 ----
@@ -604,3 +409,4 @@ Credits
 Version and Change log
 ----
 
+* version 0.1 : 25th Oct 2013 : first version of release. tested for neutron only.
