@@ -46,7 +46,7 @@ function allinone_neutron_setup() {
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}"
+      "<db_ip>:${db_ip}" "<db_ovs_user>:${db_ovs_user}" "<db_ovs_pass>:${db_ovs_pass}"
   else
     echo "network_type must be 'vlan' or 'gre'."
     exit 1
@@ -83,7 +83,7 @@ function controller_neutron_setup() {
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}"
+      "<db_ip>:${db_ip}" "<db_ovs_user>:${db_ovs_user}" "<db_ovs_pass>:${db_ovs_pass}"
   else
     echo "network_type must be 'vlan' or 'gre'."
     exit 1
@@ -137,9 +137,6 @@ function network_neutron_setup() {
   cp $base_dir/conf/etc.neutron/lbaas_agent.ini /etc/neutron/lbaas_agent.ini
 
   if [[ "${network_type}" = 'gre' ]]; then
-    # setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
-    #   outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-    #   "<db_ip>:${db_ip}" "<neutron_ip>:${network_node_ip}"
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
       "<db_ip>:${db_ip}" "<neutron_ip>:${network_node_ip}" "<db_ovs_user>:${db_ovs_user}" \
@@ -147,17 +144,11 @@ function network_neutron_setup() {
   elif [[ "${network_type}" = 'vlan' ]]; then
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.vlan \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-      "<db_ip>:${db_ip}"
+      "<db_ip>:${db_ip}" "<db_ovs_user>:${db_ovs_user}" "<db_ovs_pass>:${db_ovs_pass}"
   else
     echo "network_type must be 'vlan' or 'gre'."
     exit 1
   fi
-
-  # see bug https://lists.launchpad.net/openstack/msg23198.html
-  # this treat includes secirity problem, but unfortunatly it is needed for neutron now.
-  # when you noticed that it is not needed, please comment out these 2 lines.
-  #cp $base_dir/conf/etc.sudoers.d/neutron_sudoers /etc/sudoers.d/neutron_sudoers
-  #chmod 440 /etc/sudoers.d/neutron_sudoers
 
   setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
     outfile:/etc/neutron/api-paste.ini \
@@ -222,13 +213,6 @@ function create_network() {
     # create internal router
     int_router_id=$(neutron router-create --tenant-id ${tenant_id} router-demo | grep ' id ' | get_field 2)
     int_l3_agent_id=$(neutron agent-list | grep ' l3 agent ' | get_field 1)
-    # while [[ "$int_l3_agent_id" = "" ]]
-    # do
-    #     echo "waiting for l3 / dhcp agents..."
-    #     sleep 3
-    #     int_l3_agent_id=$(neutron agent-list | grep ' l3 agent ' | get_field 1)
-    # done
-    #neutron l3-agent-router-add ${int_l3_agent_id} router-demo
     neutron router-interface-add ${int_router_id} ${int_subnet_id}
     # create external network
     ext_net_id=$(neutron net-create --tenant-id ${tenant_id} ext_net -- --router:external=true | grep ' id ' | get_field 2)
@@ -276,8 +260,6 @@ function scgroup_allow() {
   export SERVICE_ENDPOINT="http://${keystone_ip}:35357/v2.0"
 
   # add ssh, icmp allow rules which named 'default'
-  #nova --no-cache secgroup-add-rule default tcp 22 22 0.0.0.0/0
-  #nova --no-cache secgroup-add-rule default icmp -1 -1 0.0.0.0/0
   neutron security-group-rule-create --protocol icmp --direction ingress default
   neutron security-group-rule-create --protocol tcp --port-range-min 22 --port-range-max 22 --direction ingress default
   neutron security-group-rule-list
