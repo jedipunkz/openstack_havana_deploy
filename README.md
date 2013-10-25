@@ -356,43 +356,43 @@ Parameters
 
 These are Meaning of parameters.
 
-* HOST_IP : IP addr on management network with 'allinone' node
-* HOST_PUB_IP : IP addr on public network with 'allinone' node
-* PUBLIC_NIC : NIC name on public network with 'allinone' node
-* CONTROLLER_NODE_IP : IP addr on management network with controller node
-* CONTROLLER_NODE_PUB_IP : IP addr on public network with controller node
-* NETWORK_NODE_IP : IP addr on management network with network node
-* COMPUTE_NODE_IP : IP addr on management network with compute node
-* DATA_NIC_CONTROLLER : NIC name on data network with controller node
-* DATA_NIC_COMPUTE : NIC name on data network with compute nod
-* PUBLIC_NIC : NIC name on public network on network node
-* CINDER_VOLUME : Disk device name for Cinder Volume
-* MYSQL_PASS : root password of MySQL
-* DB_KEYSTONE_USER : MySQL user for Keystone
-* DB_KEYSTONE_PASS : MySQL password for Keystone
-* DB_GLANCE_USER : MySQL user for Glance
-* DB_GLANCEPASS : MySQL password for Glance
-* DB_NEUTRON_USER : MySQL user for Neutron
-* DB_NEUTRON_PASS : MySQL password for Neutron
-* DB_NOVA_USER : MySQL user for Nova
-* DB_NOVA_PASS : MySQL password for Nova
-* DB_CINDER_USER : MySQL user for Cinder
-* DB_CINDER_PASS : MySQL password for CInder
-* ADMIN_PASSWORD : Keystone password for admin user
-* SERVICE_PASSWORD : Keystone password for service user
-* OS_TENANT_NAME : OS tenant name
-* OS_USERNAME : OS username
-* OS_PASSWORD : OS password
-* DEMO_USER : first user for DEMO
-* DEMO_PASSWORD : first user's password for DEMO
-* INT_NET_GATEWAY : Gateway address of internal network 
-* INT_NET_RANGE : Range of external network
-* EXT_NET_GATEWAY : Gateway address of external network
-* EXT_NET_START : Starging address of external network
-* EXT_NET_END : Ending address of external network
-* EXT_NET_RANGE : Range of external network
-* OS_IMAGE_URL : URL for downloading OS image file
-* OS_IMAGE_NAME : Name of OS IMAGE name for Glance service
+* host_ip : ip addr on management network with 'allinone' node
+* host_pub_ip : ip addr on public network with 'allinone' node
+* public_nic : nic name on public network with 'allinone' node
+* controller_node_ip : ip addr on management network with controller node
+* controller_node_pub_ip : ip addr on public network with controller node
+* network_node_ip : ip addr on management network with network node
+* compute_node_ip : ip addr on management network with compute node
+* data_nic_controller : nic name on data network with controller node
+* data_nic_compute : nic name on data network with compute nod
+* public_nic : nic name on public network on network node
+* cinder_volume : disk device name for cinder volume
+* mysql_pass : root password of mysql
+* db_keystone_user : mysql user for keystone
+* db_keystone_pass : mysql password for keystone
+* db_glance_user : mysql user for glance
+* db_glancepass : mysql password for glance
+* db_neutron_user : mysql user for neutron
+* db_neutron_pass : mysql password for neutron
+* db_nova_user : mysql user for nova
+* db_nova_pass : mysql password for nova
+* db_cinder_user : mysql user for cinder
+* db_cinder_pass : mysql password for cinder
+* admin_password : keystone password for admin user
+* service_password : keystone password for service user
+* os_tenant_name : os tenant name
+* os_username : os username
+* os_password : os password
+* demo_user : first user for demo
+* demo_password : first user's password for demo
+* int_net_gateway : gateway address of internal network
+* int_net_range : range of external network
+* ext_net_gateway : gateway address of external network
+* ext_net_start : starging address of external network
+* ext_net_end : ending address of external network
+* ext_net_range : range of external network
+* os_image_url : url for downloading os image file
+* os_image_name : name of os image name for glance service
 
 Licensing
 ----
@@ -409,4 +409,4 @@ Credits
 Version and Change log
 ----
 
-* version 0.1 : 25th Oct 2013 : first version of release. tested for neutron only.
+* version 0.1 : 25th Oct 2013 : first version of release. tested for neutron mode only.
