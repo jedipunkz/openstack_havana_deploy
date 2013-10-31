@@ -18,7 +18,8 @@ function allinone_neutron_setup() {
     outfile:/etc/neutron/metadata_agent.ini \
     "<controller_node_ip>:127.0.0.1" "<keystone_ip>:${keystone_ip}" \
     "<service_tenant_name>:${service_tenant_name}" \
-    "<service_password>:${service_password}"
+    "<service_password>:${service_password}" \
+    "<nova_ip>:${nova_ip}"
   setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
     outfile:/etc/neutron/api-paste.ini \
     "<keystone_ip>:${keystone_ip}" \
@@ -117,7 +118,8 @@ function network_neutron_setup() {
     "<controller_node_ip>:${controller_node_ip}" \
     "<keystone_ip>:${keystone_ip}" \
     "<service_tenant_name>:${service_tenant_name}" \
-    "<service_password>:${service_password}#"
+    "<service_password>:${service_password}#" \
+    "<nova_ip>:${nova_ip}"
   setconf infile:$base_dir/conf/etc.neutron/api-paste.ini \
     outfile:/etc/neutron/api-paste.ini \
     "<keystone_ip>:${keystone_ip}" \
