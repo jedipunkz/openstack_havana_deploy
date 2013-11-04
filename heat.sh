@@ -2,7 +2,7 @@
 
 function heat_setup() {
   # install packages
-  install_package heat-api heat-api-cfn
+  install_package heat-api heat-api-cfn heat-engine
 
   # create database for heat
   mysql -uroot -p${mysql_pass} -e "create database heat;"
@@ -26,5 +26,6 @@ function heat_setup() {
   # restart all of cinder services
   service heat-api restart
   service heat-api-cfn restart
+  service heat-engine restart
 }
 
