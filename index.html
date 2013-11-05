@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Openstack havana deploy by jedipunkz</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Openstack havana deploy</h1>
+          <h2>Deployment Tool for OpenStack Havana Release with Ubuntu Cloud Archive</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/jedipunkz/openstack_havana_deploy/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/jedipunkz/openstack_havana_deploy/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/jedipunkz/openstack_havana_deploy" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a name="openstack-havana-installation-script" class="anchor" href="#openstack-havana-installation-script"><span class="octicon octicon-link"></span></a>OpenStack Havana Installation Script</h1>
+
+<p>OpenStack Havana Installation Bash Script for Ubuntu Server 12.04 LTS.</p>
+
+<h2>
+<a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>Author</h2>
+
+<p>Tomokazu Hirai <a href="https://github.com/jedipunkz" class="user-mention">@jedipunkz</a></p>
+
+<p>Twitter : <a href="https://twitter.com/jedipunkz">https://twitter.com/jedipunkz</a>
+Blog    : <a href="http://jedipunkz.github.io">http://jedipunkz.github.io</a></p>
+
+<h2>
+<a name="notice" class="anchor" href="#notice"><span class="octicon octicon-link"></span></a>Notice</h2>
+
+<p>This script was tested ..</p>
+
+<ul>
+<li>all in one node with neutron (vlan mode)</li>
+<li>separated nodes (controller node, network node, compute x n) with neutron (vlan mode)</li>
+</ul><p>in these cases, it is not already done.</p>
+
+<ul>
+<li>all in one node with nova-network</li>
+<li>separated nodes (controller node, compute x n) with nova-network</li>
+</ul><h2>
+<a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h2>
+
+<p>devstack is very usefull for me. I am using devstack for understanding
+openstack, especially Neutron ! ;) but when I reboot devstack node, all of
+openstack compornents was not booted. That is not good for me. and I wanted to
+use Ubuntu Cloud Archive packages.</p>
+
+<h2>
+<a name="require-environment" class="anchor" href="#require-environment"><span class="octicon octicon-link"></span></a>Require Environment</h2>
+
+<h4>
+<a name="cinder-device" class="anchor" href="#cinder-device"><span class="octicon octicon-link"></span></a>Cinder Device</h4>
+
+<p>If you want use REAL disk device for cinder such as /dev/sdb, please input disk
+device name to $CINDER_VOLUME in setup.conf. If you do not have any additional
+disk for cinder, you can use loopback device. So please input loopback device
+name such as /dev/loop3.</p>
+
+<h4>
+<a name="in-all-in-ne-node-mode" class="anchor" href="#in-all-in-ne-node-mode"><span class="octicon octicon-link"></span></a>In All in ne node mode</h4>
+
+<p>You need 2 NICs (management network, public network). You can run this script
+via management network NIC. VM can access to the internet via public network
+NIC (default : eth0, You can change device on setup.conf).</p>
+
+<h4>
+<a name="in-separated-nodes-mode" class="anchor" href="#in-separated-nodes-mode"><span class="octicon octicon-link"></span></a>In separated nodes mode</h4>
+
+<p>You need 3 NICs for ..</p>
+
+<ul>
+<li>management network</li>
+<li>public network / API network (default: eth0)</li>
+<li>data network (default: eth1)</li>
+</ul><p>for more details, please see this doc. </p>
+
+<p><a href="http://docs.openstack.org/trunk/openstack-network/admin/content/app_demo_single_router.html">http://docs.openstack.org/trunk/openstack-network/admin/content/app_demo_single_router.html</a></p>
+
+<p>Neutron was designed on 4 networks (public, data, managememt, api) so You can
+3 NICs on separated nodes mode. API network and Public network can share same
+network segment or you can separate these networks. This README's
+configuration of the premise is sharing a segment with API and Public network
+(default NIC : eth0).</p>
+
+<h2>
+<a name="how-to-use-on-all-in-one-node-with-neutron" class="anchor" href="#how-to-use-on-all-in-one-node-with-neutron"><span class="octicon octicon-link"></span></a>How to use on All in One Node with neutron</h2>
+
+<h4>
+<a name="architecture" class="anchor" href="#architecture"><span class="octicon octicon-link"></span></a>Architecture</h4>
+
+<pre><code>+------------------- Public/API Network
+|
++------------+
+|vm|vm|...   |
++------------+
+| all in one |
++------------+
+|     |      
++-----)------------- Management/API Network
+      |             
+      +------------- Data Network
+</code></pre>
+
+<ul>
+<li>all of compornetns are on same node.</li>
+</ul><h4>
+<a name="setup-network-interfaces" class="anchor" href="#setup-network-interfaces"><span class="octicon octicon-link"></span></a>Setup network interfaces</h4>
+
+<p>Please setup network interfaces just like this.</p>
+
+<pre><code>% sudo ${EDITOR} /etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+# this NIC will be used for VM traffic to the internet
+auto eth0
+iface eth0 inet static
+    up ifconfig $IFACE 0.0.0.0 up
+    up ip link set $IFACE promisc on
+    down ip link set $IFACE promisc off
+    down ifconfig $IFACE down
+    address 10.200.9.10
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+
+auto eth1
+iface eth1 inet static
+    address 172.16.0.10
+    netmask 255.255.255.0
+
+# this NIC must be on management network
+auto eth2
+iface eth2 inet static
+    address 10.200.10.10
+    netmask 255.255.255.0
+    gateway 10.200.10.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+</code></pre>
+
+<p>login and use this script via eth1 on management network. eth0 will be lost
+connectivity when you run this script. and make sure hostname resolv at
+/etc/hosts. in this sample, your host need resolv self fqdn in 10.200.10.10</p>
+
+<h4>
+<a name="get-this-script" class="anchor" href="#get-this-script"><span class="octicon octicon-link"></span></a>Get this script</h4>
+
+<p>git clone this script from github.</p>
+
+<pre><code>% git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+% cd openstack_havana_deploy
+% cp setup.conf.samples/setup.conf.allinone.neutron setup.conf
+</code></pre>
+
+<h4>
+<a name="edit-parameters-on-setupconf" class="anchor" href="#edit-parameters-on-setupconf"><span class="octicon octicon-link"></span></a>Edit parameters on setup.conf</h4>
+
+<p>There are many paramaters on setup.conf, but in 'allinone' mode, parameters
+which you need to edit is such things.</p>
+
+<pre><code>HOST_IP='10.200.10.10'
+HOST_PUB_IP='10.200.9.10'
+PUBLICNETWORK_NIC_NETWORK_NODE='eth0'
+NETWORK_COMPONENT='neutron'
+</code></pre>
+
+<p>If you want to change other parameters such as DB password, admin password,
+please change these.</p>
+
+<h4>
+<a name="run-script" class="anchor" href="#run-script"><span class="octicon octicon-link"></span></a>Run script</h4>
+
+<p>Run this script, all of conpornents will be built.</p>
+
+<pre><code>% sudo ./setup.sh allinone
+% sudo ./setup.sh create_network
+</code></pre>
+
+<p>That's all and You've done. :D Now you can access to Horizon
+(http://${HOST_IP}/horizon/) with user 'demo', password 'demo'.</p>
+
+<h2>
+<a name="how-to-use-on-separated-nodes-mode-with-quatum" class="anchor" href="#how-to-use-on-separated-nodes-mode-with-quatum"><span class="octicon octicon-link"></span></a>How to use on separated nodes mode with quatum</h2>
+
+<h4>
+<a name="architecture-1" class="anchor" href="#architecture-1"><span class="octicon octicon-link"></span></a>Architecture</h4>
+
+<pre><code>+-------------+-------------+------------------------------ Public/API Network
+|             |             |             
++-----------+ +-----------+ +-----------+ +-----------+ +-----------+
+|           | |           | |           | |vm|vm|..   | |vm|vm|..   |
+| controller| |  network  | |  network  | +-----------+ +-----------+
+|           | |           | | additional| |  compute  | |  compute  |
+|           | |           | |           | |           | | additional|
++-----------+ +-----------+ +-----------+ +-----------+ +-----------+
+|             |     |       |     |       |     |       |
++-------------+-----)-------+-----)-------+-----)-------)-- Management/API Network
+                    |             |             |       |
+                    +-------------+-------------+---------- Data Network
+</code></pre>
+
+<ul>
+<li>minimum architecture : 3 nodes (controller node x 1, network node x 1, compute node x1)</li>
+<li>You can add some network nodes and compute nodes.</li>
+<li>additional network node(s) make you be able to have duplication of each agent</li>
+<li>additional compute node(s) make you be able to have more VMs.</li>
+</ul><h4>
+<a name="get-this-script-1" class="anchor" href="#get-this-script-1"><span class="octicon octicon-link"></span></a>Get this script</h4>
+
+<p>git clone this script from github on controller node.</p>
+
+<pre><code>controller% git clone git://github.com/jedipunkz/openstack_havana_deploy.git
+controller% cd openstack_havana_deploy
+controller% cp setup.conf.samples/setup.conf.separated.neutron setup.conf
+</code></pre>
+
+<h4>
+<a name="edit-parameters-on-setupconf-1" class="anchor" href="#edit-parameters-on-setupconf-1"><span class="octicon octicon-link"></span></a>Edit parameters on setup.conf</h4>
+
+<p>There are many paramaters on setup.conf, but in 'allinone' mode, parameters
+which you need to edit is such things.</p>
+
+<pre><code>CONTROLLER_NODE_IP='10.200.10.10'
+CONTROLLER_NODE_PUB_IP='10.200.9.10'
+NETWORK_NODE_IP='10.200.10.11'
+COMPUTE_NODE_IP='10.200.10.12'
+DATANETWORK_NIC_NETWORK_NODE='eth1'
+DATANETWORK_NIC_COMPUTE_NODE='eth0'
+PUBLICNETWORK_NIC_NETWORK_NODE='eth0'
+NETWORK_COMPONENT='neutron'
+</code></pre>
+
+<p>If you want to change other parameters such as DB password, admin password,
+please change these.</p>
+
+<h4>
+<a name="copy-to-other-nodes" class="anchor" href="#copy-to-other-nodes"><span class="octicon octicon-link"></span></a>copy to other nodes</h4>
+
+<p>copy directory to network node and compute node.</p>
+
+<pre><code>controller% scp -r openstack_havana_deploy &lt;network_node_ip&gt;:~/
+controller% scp -r openstack_havana_deploy &lt;compute_node_ip&gt;:~/
+</code></pre>
+
+<h4>
+<a name="controller-nodes-network-interfaces" class="anchor" href="#controller-nodes-network-interfaces"><span class="octicon octicon-link"></span></a>Controller Node's network interfaces</h4>
+
+<p>Set up NICs for controller node.</p>
+
+<pre><code>controller% sudo ${EDITOR} /etc/network/interfaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# for API network
+auto eth0
+iface eth0 inet static
+    address 10.200.9.10
+    netmask 255.255.255.0
+    gateway 10.200.9.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+
+# for management network
+auto eth1
+iface eth1 inet static
+    address 10.200.10.10
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+</code></pre>
+
+<p>and login to controller node via eth0 (public network) for executing this script.
+Other NIC will lost connectivity. and make sure hostname resolv at
+/etc/hosts. in this sample, your host need resolv self fqdn in 10.200.9.10</p>
+
+<h4>
+<a name="network-nodes-network-interfaces" class="anchor" href="#network-nodes-network-interfaces"><span class="octicon octicon-link"></span></a>Network Node's network interfaces</h4>
+
+<p>Set up NICs for network node.</p>
+
+<pre><code>network% sudo ${EDITOR} /etc/network/interfaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# for API network
+auto eth0
+iface eth0 inet static
+    up ifconfig $IFACE 0.0.0.0 up
+    up ip link set $IFACE promisc on
+    down ip link set $IFACE promisc off
+    down ifconfig $IFACE down
+    address 10.200.9.11
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+
+# for VM traffic to the internet
+auto eth1
+iface eth1 inet static
+    address 172.16.1.11
+    netmask 255.255.255.0
+
+# for management network
+auto eth2
+iface eth2 inet static
+    address 10.200.10.11
+    netmask 255.255.255.0
+    gateway 10.200.10.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+</code></pre>
+
+<p>and login to network node via eth2 (management network) for executing this
+script. Other NIC will lost connectivity.</p>
+
+<h4>
+<a name="compute-nodes-network-interfaces" class="anchor" href="#compute-nodes-network-interfaces"><span class="octicon octicon-link"></span></a>Compute Node's network interfaces</h4>
+
+<p>Set up NICs for network node.</p>
+
+<pre><code>compute% sudo ${EDITOR} /etc/network/interfaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# for VM traffic to the internet
+auto eth0
+iface eth0 inet static
+    address 172.16.1.12
+    netmask 255.255.255.0
+
+# for management network
+auto eth1
+iface eth1 inet static
+    address 10.200.10.12
+    netmask 255.255.255.0
+    gateway 10.200.10.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+    dns-search example.com
+</code></pre>
+
+<p>and login to compute node via eth2 (mangement network) for executing this
+script. Other NIC will lost connectivity.</p>
+
+<h4>
+<a name="run-script-1" class="anchor" href="#run-script-1"><span class="octicon octicon-link"></span></a>Run script</h4>
+
+<p>Run this script, all of conpornents will be built.</p>
+
+<pre><code>controller% sudo ./setup.sh controller
+network   % sudo ./setup.sh network
+compute   % sudo ./setup.sh comupte
+controller% sudo ./setup.sh create_network # &lt;- creating virtual network
+</code></pre>
+
+<p>That's all and You've done. :D Now you can access to Horizon
+(http://${CONTROLLER_NODE_PUB_IP}/horizon/) with user 'demo', password 'demo'.</p>
+
+<h4>
+<a name="additional-compute-node" class="anchor" href="#additional-compute-node"><span class="octicon octicon-link"></span></a>Additional Compute Node</h4>
+
+<p>If you want to have additional compute node(s), please setup network
+interfaces as noted before for compute node and execute these commands.</p>
+
+<p>Edit setup.conf (COPUTE_NODE_IP parameter) and execute setup.sh.</p>
+
+<pre><code>compute    % scp -r ~/openstack_havana_deploy &lt;add_compute_node&gt;:~/
+add_compute% cd openstack_havana_deploy
+add_compute% ${EDITOR} setup.conf
+COMPUTE_NODE_IP='&lt;your additional compute node's ip&gt;'
+add_compute% sudo ./setup.sh compute
+add_compute% sudo nova-manage service list # check nodes list
+</code></pre>
+
+<h4>
+<a name="additional-network-node" class="anchor" href="#additional-network-node"><span class="octicon octicon-link"></span></a>Additional Network Node</h4>
+
+<p>If you want to have additional network node(s), please setup network
+interfaces as noted before for network node and execute these commands.</p>
+
+<p>Edit setup.conf (NETWORK_NODE_IP parameter) and execute setup.sh.</p>
+
+<pre><code>network    % scp -r ~/openstack_havana_deploy &lt;add_network_node&gt;:~/
+add_network% cd openstack_havana_deploy
+add_network% ${EDITOR} setup.conf
+NETWORK_NODE_IP='&lt;your additional network node's ip&gt;'
+add_network% sudo ./setup.sh network
+add_network% source ~/openstackrc
+add_network% neutron agent-list # check agent list
+</code></pre>
+
+<h2>
+<a name="parameters" class="anchor" href="#parameters"><span class="octicon octicon-link"></span></a>Parameters</h2>
+
+<p>These are Meaning of parameters.</p>
+
+<ul>
+<li>host_ip : ip addr on management network with 'allinone' node</li>
+<li>host_pub_ip : ip addr on public network with 'allinone' node</li>
+<li>public_nic : nic name on public network with 'allinone' node</li>
+<li>controller_node_ip : ip addr on management network with controller node</li>
+<li>controller_node_pub_ip : ip addr on public network with controller node</li>
+<li>network_node_ip : ip addr on management network with network node</li>
+<li>compute_node_ip : ip addr on management network with compute node</li>
+<li>data_nic_controller : nic name on data network with controller node</li>
+<li>data_nic_compute : nic name on data network with compute nod</li>
+<li>public_nic : nic name on public network on network node</li>
+<li>cinder_volume : disk device name for cinder volume</li>
+<li>mysql_pass : root password of mysql</li>
+<li>db_keystone_user : mysql user for keystone</li>
+<li>db_keystone_pass : mysql password for keystone</li>
+<li>db_glance_user : mysql user for glance</li>
+<li>db_glancepass : mysql password for glance</li>
+<li>db_neutron_user : mysql user for neutron</li>
+<li>db_neutron_pass : mysql password for neutron</li>
+<li>db_nova_user : mysql user for nova</li>
+<li>db_nova_pass : mysql password for nova</li>
+<li>db_cinder_user : mysql user for cinder</li>
+<li>db_cinder_pass : mysql password for cinder</li>
+<li>admin_password : keystone password for admin user</li>
+<li>service_password : keystone password for service user</li>
+<li>os_tenant_name : os tenant name</li>
+<li>os_username : os username</li>
+<li>os_password : os password</li>
+<li>demo_user : first user for demo</li>
+<li>demo_password : first user's password for demo</li>
+<li>int_net_gateway : gateway address of internal network</li>
+<li>int_net_range : range of external network</li>
+<li>ext_net_gateway : gateway address of external network</li>
+<li>ext_net_start : starging address of external network</li>
+<li>ext_net_end : ending address of external network</li>
+<li>ext_net_range : range of external network</li>
+<li>os_image_url : url for downloading os image file</li>
+<li>os_image_name : name of os image name for glance service</li>
+</ul><h2>
+<a name="licensing" class="anchor" href="#licensing"><span class="octicon octicon-link"></span></a>Licensing</h2>
+
+<p>This Script  is licensed under a Creative Commons Attribution 3.0 Unported License.</p>
+
+<p>To view a copy of this license, visit
+[ <a href="http://creativecommons.org/licenses/by/3.0/deed.en_US">http://creativecommons.org/licenses/by/3.0/deed.en_US</a> ].</p>
+
+<h2>
+<a name="known-issue" class="anchor" href="#known-issue"><span class="octicon octicon-link"></span></a>Known Issue</h2>
+
+<ul>
+<li>can not create heat stack</li>
+<li>can not access vm via neutron gre tunnel (see bug <a href="https://bugs.launchpad.net/neutron/+bug/1238445">https://bugs.launchpad.net/neutron/+bug/1238445</a>)</li>
+<li>not implemented ceilometer</li>
+</ul><h2>
+<a name="version-and-change-log" class="anchor" href="#version-and-change-log"><span class="octicon octicon-link"></span></a>Version and Change log</h2>
+
+<ul>
+<li>version 0.1 : 25th Oct 2013 : first version of release. tested for neutron mode only.</li>
+</ul>
+        </section>
+
+        <footer>
+          Openstack havana deploy is maintained by <a href="https://github.com/jedipunkz">jedipunkz</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
