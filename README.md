@@ -1,9 +1,6 @@
 OpenStack Havana Installation Script
 ====
 
-this repository is under constructions. especially for nova-network!
-====
-
 OpenStack Havana Installation Bash Script for Ubuntu Server 12.04 LTS.
 
 Author
@@ -19,17 +16,13 @@ Notice
 
 This script was tested ..
 
-* all in one node with neutron
-* separated nodes (controller node, network node, compute x n) with neutron
+* all in one node with neutron (vlan mode)
+* separated nodes (controller node, network node, compute x n) with neutron (vlan mode)
 
 in these cases, it is not already done.
 
 * all in one node with nova-network
 * separated nodes (controller node, compute x n) with nova-network
-
-so, now I do not support separated nodes for each service (keystone, glance,
-nova, etc...). If you want to do this with separated nodes mode, please tell
-me for fork it.
 
 Motivation
 ----
@@ -155,6 +148,7 @@ please change these.
 Run this script, all of conpornents will be built.
 
     % sudo ./setup.sh allinone
+    % sudo ./setup.sh create_network
 
 That's all and You've done. :D Now you can access to Horizon
 (http://${HOST_IP}/horizon/) with user 'demo', password 'demo'.
@@ -317,6 +311,7 @@ Run this script, all of conpornents will be built.
     controller% sudo ./setup.sh controller
     network   % sudo ./setup.sh network
     compute   % sudo ./setup.sh comupte
+    controller% sudo ./setup.sh create_network # <- creating virtual network
 
 That's all and You've done. :D Now you can access to Horizon
 (http://${CONTROLLER_NODE_PUB_IP}/horizon/) with user 'demo', password 'demo'.
@@ -402,9 +397,12 @@ This Script  is licensed under a Creative Commons Attribution 3.0 Unported Licen
 To view a copy of this license, visit
 [ http://creativecommons.org/licenses/by/3.0/deed.en_US ].
 
-Credits
+Known Issue
 ----
 
+* can not create heat stack
+* can not access vm via neutron gre tunnel (see bug https://bugs.launchpad.net/neutron/+bug/1238445)
+* not implemented ceilometer
 
 Version and Change log
 ----
