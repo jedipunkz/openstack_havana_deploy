@@ -30,6 +30,7 @@ function keystone_setup() {
   user_id_glance=$(keystone user-create --name glance --pass ${service_password} --tenant-id ${tenant_id_service} --email admin@example.com | grep ' id ' | get_field 2)
   user_id_cinder=$(keystone user-create --name cinder --pass ${service_password} --tenant-id ${tenant_id_service} --email admin@example.com | grep ' id ' | get_field 2)
   user_id_heat=$(keystone user-create --name heat --pass ${service_password} --tenant-id ${tenant_id_service} --email admin@example.com | grep ' id ' | get_field 2)
+  user_id_ceilometer=$(keystone user-create --name ceilometer --pass ${service_password} --tenant-id ${tenant_id_service} --email admin@example.com | grep ' id ' | get_field 2)
   user_id_demo=$(keystone user-create --name ${demo_user} --pass ${demo_password} --tenant-id ${tenant_id_service} --email demo@example.com | grep ' id ' | get_field 2)
   if [[ "$1" = "neutron" ]]; then
     user_id_neutron=$(keystone user-create --name neutron --pass ${service_password} --tenant-id ${tenant_id_service} --email admin@example.com | grep ' id ' | get_field 2)
@@ -51,6 +52,7 @@ function keystone_setup() {
   keystone user-role-add --user-id ${user_id_glance} --role-id ${role_id_admin} --tenant-id ${tenant_id_service}
   keystone user-role-add --user-id ${user_id_cinder} --role-id ${role_id_admin} --tenant-id ${tenant_id_service}
   keystone user-role-add --user-id ${user_id_heat} --role-id ${role_id_admin} --tenant-id ${tenant_id_service}
+  keystone user-role-add --user-id ${user_id_ceilometer} --role-id ${role_id_admin} --tenant-id ${tenant_id_service}
   if [[ "$1" = "neutron" ]]; then
     keystone user-role-add --user-id ${user_id_neutron} --role-id ${role_id_admin} --tenant-id ${tenant_id_service}
   fi
@@ -65,8 +67,9 @@ function keystone_setup() {
   service_id_volume=$(keystone service-create --name cinder --type volume --description 'openstack volume service' | grep ' id ' | get_field 2)
   service_id_identity=$(keystone service-create --name keystone --type identity --description 'openstack identity service' | grep ' id ' | get_field 2)
   service_id_ec2=$(keystone service-create --name ec2 --type ec2 --description 'ec2 service' | grep ' id ' | get_field 2)
-  service_id_heat=$(keystone service-create --name heat --type orchestration --description 'openstack orchestration serice' | grep ' id ' | get_field 2)
-  service_id_heat_cfn=$(keystone service-create --name heat-cfn --type cloudformation --description 'openstack cloudformation serice' | grep ' id ' | get_field 2)
+  service_id_heat=$(keystone service-create --name heat --type orchestration --description 'openstack orchestration service' | grep ' id ' | get_field 2)
+  service_id_heat_cfn=$(keystone service-create --name heat-cfn --type cloudformation --description 'openstack cloudformation service' | grep ' id ' | get_field 2)
+  service_id_ceilometer=$(keystone service-create --name ceilometer --type metering --description 'openstack metering service' | grep ' id ' | get_field 2)
   if [[ "$1" = "neutron" ]]; then
     service_id_neutron=$(keystone service-create --name neutron --type network --description 'openstack networking service' | grep ' id ' | get_field 2)
   fi
@@ -83,6 +86,7 @@ function keystone_setup() {
     keystone endpoint-create --region myregion --service_id $service_id_compute --publicurl "http://${controller_node_pub_ip}:8774/v2/\$(tenant_id)s" --adminurl "http://${controller_node_ip}:8774/v2/\$(tenant_id)s" --internalurl "http://${controller_node_ip}:8774/v2/\$(tenant_id)s"
     keystone endpoint-create --region myregion --service_id $service_id_heat --publicurl "http://${controller_node_pub_ip}:8004/v1/\$(tenant_id)s" --adminurl "http://${controller_node_ip}:8004/v1/\$(tenant_id)s" --internalurl "http://${controller_node_ip}:8004/v1/\$(tenant_id)s"
     keystone endpoint-create --region myregion --service_id $service_id_heat_cfn --publicurl "http://${controller_node_pub_ip}:8000/v1" --adminurl "http://${controller_node_ip}:8000/v1" --internalurl "http://${controller_node_ip}:8000/v1"
+    keystone endpoint-create --region myregion --service_id $service_id_ceilometer --publicurl "http://${controller_node_pub_ip}:8777" --adminurl "http://${controller_node_ip}:8777" --internalurl "http://${controller_node_ip}:8777"
     if [[ "$1" = "neutron" ]]; then
       keystone endpoint-create --region myregion --service-id $service_id_neutron --publicurl "http://${controller_node_pub_ip}:9696/" --adminurl "http://${controller_node_ip}:9696/" --internalurl "http://${controller_node_ip}:9696/"
     fi
@@ -94,6 +98,7 @@ function keystone_setup() {
     keystone endpoint-create --region myregion --service_id $service_id_compute --publicurl "http://${controller_node_ip}:8774/v2/\$(tenant_id)s" --adminurl "http://${controller_node_ip}:8774/v2/\$(tenant_id)s" --internalurl "http://${controller_node_ip}:8774/v2/\$(tenant_id)s"
     keystone endpoint-create --region myregion --service_id $service_id_heat --publicurl "http://${controller_node_ip}:8004/v1/\$(tenant_id)s" --adminurl "http://${controller_node_ip}:8004/v1/\$(tenant_id)s" --internalurl "http://${controller_node_ip}:8004/v1/\$(tenant_id)s"
     keystone endpoint-create --region myregion --service_id $service_id_heat_cfn --publicurl "http://${controller_node_ip}:8000/v1" --adminurl "http://${controller_node_ip}:8000/v1" --internalurl "http://${controller_node_ip}:8000/v1"
+    keystone endpoint-create --region myregion --service_id $service_id_ceilometer --publicurl "http://${controller_node_ip}:8777" --adminurl "http://${controller_node_ip}:8777" --internalurl "http://${controller_node_ip}:8777"
     if [[ "$1" = "neutron" ]]; then
       keystone endpoint-create --region myregion --service-id $service_id_neutron --publicurl "http://${controller_node_ip}:9696/" --adminurl "http://${controller_node_ip}:9696/" --internalurl "http://${controller_node_ip}:9696/"
     fi

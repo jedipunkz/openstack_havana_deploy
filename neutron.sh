@@ -8,8 +8,6 @@ function allinone_neutron_setup() {
   install_package neutron-server neutron-plugin-openvswitch neutron-plugin-openvswitch-agent dnsmasq neutron-dhcp-agent neutron-l3-agent neutron-lbaas-agent
 
   # create database for neutron
-  # mysql -u root -p${mysql_pass} -e "create database neutron;"
-  # mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
   mysql -u root -p${mysql_pass} -e "create database ovs_neutron;"
   mysql -u root -p${mysql_pass} -e "grant all on ovs_neutron.* to '${db_ovs_user}'@'%' identified by '${db_ovs_pass}';"
 
@@ -67,16 +65,11 @@ function controller_neutron_setup() {
   # install packages
   install_package neutron-server neutron-plugin-openvswitch
   # create database for neutron
-  # mysql -u root -p${mysql_pass} -e "create database neutron;"
-  # mysql -u root -p${mysql_pass} -e "grant all on neutron.* to '${db_neutron_user}'@'%' identified by '${db_neutron_pass}';"
   mysql -u root -p${mysql_pass} -e "create database ovs_neutron;"
   mysql -u root -p${mysql_pass} -e "grant all on ovs_neutron.* to '${db_ovs_user}'@'%' identified by '${db_ovs_pass}';"
 
   # set configuration files
   if [[ "${network_type}" = 'gre' ]]; then
-    # setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre.controller \
-    #   outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
-    #   "<db_ip>:${db_ip}"
     setconf infile:$base_dir/conf/etc.neutron.plugins.openvswitch/ovs_neutron_plugin.ini.gre \
       outfile:/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini \
       "<db_ip>:${db_ip}" "<neutron_ip>:${neutron_ip}" "<db_ovs_user>:${db_ovs_user}" \

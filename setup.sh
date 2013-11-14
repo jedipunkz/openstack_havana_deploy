@@ -21,6 +21,7 @@ source ./nova.sh
 source ./neutron.sh
 source ./cinder.sh
 source ./heat.sh
+source ./ceilometer.sh
 source ./horizon.sh
 
 # --------------------------------------------------------------------------------------
@@ -65,6 +66,7 @@ case "$1" in
     glance_ip=${host_ip};                   check_para ${glance_ip}
     neutron_ip=${host_ip};                  check_para ${neutron_ip}
     rabbit_ip=${host_ip};                   check_para ${rabbit_ip}
+    ceilometer_ip=${host_ip};               check_para ${ceilometer_ip}
     controller_node_pub_ip=${host_pub_ip};  check_para ${controller_node_pub_ip}
     controller_node_ip=${host_ip};          check_para ${controller_node_ip}
     if [[ "$network_component" = "neutron" ]]; then
@@ -80,6 +82,8 @@ case "$1" in
       cinder_setup allinone
       horizon_setup
       heat_setup
+      ceilometer_setup
+      ceilometer_agent_setup allinone
       create_network
       scgroup_allow allinone
     elif [[ "$network_component" = "nova-network" ]]; then
@@ -93,6 +97,8 @@ case "$1" in
       cinder_setup allinone
       horizon_setup
       heat_setup
+      ceilometer_setup
+      ceilometer_agent_setup allinone
       create_network_nova_network
       scgroup_allow allinone
     else
@@ -111,6 +117,7 @@ case "$1" in
     glance_ip=${controller_node_ip};            check_para ${glance_ip}
     neutron_ip=${controller_node_ip};           check_para ${neutron_ip}
     rabbit_ip=${controller_node_ip};            check_para ${rabbit_ip}
+    ceilometer_ip=${controller_node_ip};        check_para ${ceilometer_ip}
     if [[ "$network_component" = "neutron" ]]; then
       shell_env separate
       init
@@ -123,6 +130,7 @@ case "$1" in
       cinder_setup controller
       horizon_setup
       heat_setup
+      ceilometer_setup
       # scgroup_allow controller
     elif [[ "$network_component" = "nova-network" ]]; then
       shell_env separate
@@ -136,6 +144,7 @@ case "$1" in
       cinder_setup controller
       horizon_setup
       heat_setup
+      ceilometer_setup
       create_network_nova_network
       # scgroup_allow controller
     else
@@ -155,6 +164,7 @@ case "$1" in
     glance_ip=${controller_node_ip};   check_para ${glance_ip}
     neutron_ip=${controller_node_ip};  check_para ${neutron_ip}
     rabbit_ip=${controller_node_ip};   check_para ${rabbit_ip}
+    ceilometer_ip=${controller_node_ip};        check_para ${ceilometer_ip}
     shell_env separate
     init
     openvswitch_setup network
@@ -173,16 +183,19 @@ case "$1" in
     glance_ip=${controller_node_ip};   check_para ${glance_ip}
     neutron_ip=${controller_node_ip};  check_para ${neutron_ip}
     rabbit_ip=${controller_node_ip};   check_para ${rabbit_ip}
+    ceilometer_ip=${controller_node_ip};        check_para ${ceilometer_ip}
     if [[ "$network_component" = "neutron" ]]; then
       shell_env separate
       init
       compute_openvswitch_setup
       compute_neutron_setup
       compute_nova_setup
+      ceilometer_agent_setup compute
     elif [[ "$network_component" = "nova-network" ]]; then
       shell_env separate
       init
       compute_nova_setup_nova_network
+      ceilometer_agent_setup compute
     else
       echo "network_component must be 'neutron' or 'nova-network'."
       exit 1
