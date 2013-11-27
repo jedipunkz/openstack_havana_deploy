@@ -400,9 +400,7 @@ To view a copy of this license, visit
 Known Issue
 ----
 
-* can not create heat stack
 * can not access vm via neutron gre tunnel (see bug https://bugs.launchpad.net/neutron/+bug/1238445)
-* not implemented ceilometer
 
 Version and Change log
 ----
